@@ -1,0 +1,65 @@
+@value mainGrey from "../../common/colors.css";
+@value mainDeepGrey from "../../common/colors.css";
+@value mainColor from "../../common/colors.css";
+@value mainWhite from "../../common/colors.css";
+
+.inputContainer {
+  display: flex;
+  flex-direction: column;
+  padding-right: 2%;
+
+  /* flex: 1 1 70%; */
+}
+
+.data {
+  outline: 0;
+  border: 1px solid mainGrey;
+  padding: 10px;
+}
+
+.data:after {
+  color: mainGrey;
+}
+
+.title {
+  font-size: 20px;
+  margin-bottom: 10px;
+  border: 0;
+  border-bottom: 1px solid mainGrey;
+}
+
+.mainContents {
+  height: 350px;
+}
+
+.hashTag__container {
+  border: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.uploadBtn {
+  background: #b0bec5;
+  border: 0;
+  outline: 0;
+  padding: 5px 0px;
+  margin-left: 0;
+  margin-top: 2%;
+  color: #fff;
+  border-radius: 5px;
+  font-size: 15px;
+  width: 100px;
+  cursor: pointer;
+  transition: all 100ms ease-in;
+}
+
+.uploadBtn:hover {
+  background-color: #5d99c6;
+}
+
+.fileInput {
+  display: flex;
+  justify-content: space-between;
+}

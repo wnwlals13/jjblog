@@ -1,0 +1,22 @@
+.navbar {
+}
+
+.addContainer {
+  display: flex;
+  justify-content: center;
+  height: 500px;
+  margin: 100px 5% 0 5%;
+}
+
+.inputWrap {
+  flex: 1 1 55%;
+}
+.prevWrap {
+  flex: 1 1 45%;
+}
+
+@media screen and (max-width: 867px) {
+  .prevWrap {
+    display: none;
+  }
+}
