@@ -1,0 +1,123 @@
+@import url("https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap");
+@value mainDeepGrey from '../../common/colors.css';
+@value mainColor from '../../common/colors.css';
+@value mainWhite from '../../common/colors.css';
+
+button {
+  cursor: pointer;
+  border-radius: 0.3rem;
+}
+
+.container {
+  height : 100%;
+  margin-top: 2em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.articleContainer {
+  display: flex;
+  flex-direction: column;
+  justify-items: left;
+  width: 80%;
+  max-width: 800px;
+}
+
+.backBtn {
+  width: 100px;
+  margin-bottom: 1rem;
+  border: 0;
+  outline: 0;
+  padding: 0.5rem;
+}
+
+.imgDiv {
+  height : 100%;
+  background-size : 50% 100%;
+  background-repeat : no-repeat;
+}
+
+.imgWrapper {
+  width : 100%;
+  height : 10em;
+}
+
+.title {
+  font-size: 2.3rem;
+  font-family: "Do Hyeon", sans-serif;
+  margin: 1rem 0 1rem 0;
+}
+
+.content {
+  width: 100%;
+  height: 100%;
+  min-height: 100px;
+}
+
+.info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  padding: 0 10px;
+}
+
+.info__Text {
+  display: flex;
+}
+
+.date {
+  margin: 0 1rem;
+  color: mainDeepGrey;
+}
+
+.info__mybtns button {
+  outline: 0;
+  border: 0;
+  padding: 0.3rem;
+  background-color: transparent;
+}
+
+.info__mybtns button span {
+  position: relative;
+}
+
+.info__mybtns button span:before {
+  content: "";
+  position: absolute;
+  background-color: #8fd3f4;
+  height: 1px;
+  width: 0;
+  left: 0;
+  bottom: -5px;
+  /* transform: translateX(-50%); */
+  transition: all 0.2s ease-in-out;
+}
+
+.info__mybtns button span:hover:before {
+  width: 100%;
+}
+
+.delete {
+  margin-left: 0.5rem;
+}
+
+.hashtagWrapper {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+  display: flex;
+}
+.hashtagWrapper p {
+  width: 80px;
+  color: mainDeepGrey;
+  margin-bottom: 10px;
+}
+.hashtag {
+  background-color: mainColor;
+  display: inline;
+  border-radius: 5px;
+  padding: 0 5px;
+  color: mainWhite;
+}
