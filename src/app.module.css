@@ -10,9 +10,14 @@
   box-sizing: border-box;
 }
 
-.app {
-  position: relative;
-  min-height : 100vh;
+div, .app {
+  margin : 0;
+  padding : 0;
+}
+
+.main {
+  /* margin-top : 60px; */
+  height : 100vh;
 }
 
 .login {
