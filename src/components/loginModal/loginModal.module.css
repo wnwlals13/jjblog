@@ -5,7 +5,7 @@
 @value mainLightGrey from '../../common/colors.css';
 
 .container {
-  width : 100vw;
+  /* width : 100vw; */
   height : 100vh;
   background: #fff;
 }

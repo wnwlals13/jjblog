@@ -1,20 +1,28 @@
-import { db } from "./firebase";
-import { collection, getDocs, doc, setDoc } from "firebase/firestore";
+import { app } from "./firebase";
+import {
+  collection,
+  getDocs,
+  doc,
+  setDoc,
+  getFirestore,
+} from "firebase/firestore";
+
+const db = getFirestore();
 
 class Database {
   /* 모든 게시글 조회 */
-  getAllContent = async() => {
+  getAllContent = async () => {
     const docSnap = await getDocs(collection(db, "content"));
     const result = [];
-    docSnap.forEach(item=>{
+    docSnap.forEach((item) => {
       result.push(item.data());
-    })
+    });
     return result;
-  }
+  };
   /* 게시글 추가 (단일) */
-  addContent = async(content)=> {
-    await setDoc(doc(db, 'content', content.id), content)
-  }
+  addContent = async (content) => {
+    await setDoc(doc(db, "content", content.id), content);
+  };
   // saveCommnet(userId, comment) {
   //   //
   // }

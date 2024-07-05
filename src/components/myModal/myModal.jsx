@@ -31,6 +31,8 @@ const MyModal = memo(({ display, onLogout }) => {
       <li className={styles.listItem} data-id="newly" onClick={handleMenu}>
         새 글 쓰기
       </li>
+      <li>
+      </li>
       <li className={styles.listItem} data-id="logout" onClick={onthirdClick}>
         로그아웃
       </li>

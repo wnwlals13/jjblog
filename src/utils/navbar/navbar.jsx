@@ -68,20 +68,20 @@ const Navbar = memo(({ authService, dbService, onLogin }) => {
               <Sidebar menu={menu} />
             </div>
           </div>
-          <p className={styles.sidebar} onClick={slideSidebar}>
+          <a className={styles.sidebar} onClick={slideSidebar}>
             차근차근 기록하기
-          </p>
+          </a>
         </div>
         <div className={styles.search}>
           {name && (
-            <div className={styles.user} onClick={onBtnClick}>
+            <a className={styles.user} onClick={onBtnClick}>
               {name}
-            </div>
+            </a>
           )}
           {!name && (
-            <div className={styles.user} onClick={() => navigate("/login")}>
+            <a className={styles.user} onClick={() => navigate("/login")}>
               로그인
-            </div>
+            </a>
           )}
         </div>
         <section
