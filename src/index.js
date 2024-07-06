@@ -1,6 +1,10 @@
-import React, { memo } from "react";
+import React, { memo, createContext } from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, RouterProvider, createBrowserRouter } from "react-router-dom";
+import {
+  BrowserRouter,
+  RouterProvider,
+  createBrowserRouter,
+} from "react-router-dom";
 import "./index.css";
 import App from "./App.js";
 import reportWebVitals from "./reportWebVitals";
@@ -22,37 +26,71 @@ const FileInput = memo((props) => (
   <ImgFileInput {...props} imgService={imgService} />
 ));
 
-const router = createBrowserRouter([{
-  path : "/",
-  element : <App authService={authService} dbService={dbService} FileInput={FileInput}/>,
-  children : [
-    {
-      path : "/",
-      element : <ContentsList authService={authService} dbService={dbService} FileInput={FileInput}/>
-    },{
-      path : "addPost",
-      element : <ContentAdd authService={authService} dbService={dbService} FileInput={FileInput}/>
-    }, {
-      path : "login" ,
-      element : <LoginModal authService={authService}/>
-     },{
-      path : "editPost",
-      element : <ContentEdit authService={authService} dbService={dbService} FileInput={FileInput}/>
-     },{
-      path : "viewPost",
-      element :  <Article authService={authService} dbService={dbService}/>
-     },{
-      path : "signup",
-      element : <SignupPage authService={authService}/>
-     }
-  ]
-}]);
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: (
+      <App
+        authService={authService}
+        dbService={dbService}
+        FileInput={FileInput}
+      />
+    ),
+    children: [
+      {
+        path: "/",
+        element: (
+          <ContentsList
+            authService={authService}
+            dbService={dbService}
+            FileInput={FileInput}
+          />
+        ),
+      },
+      {
+        path: "addPost",
+        element: (
+          <ContentAdd
+            authService={authService}
+            dbService={dbService}
+            FileInput={FileInput}
+          />
+        ),
+      },
+      {
+        path: "login",
+        element: <LoginModal authService={authService} />,
+      },
+      {
+        path: "editPost",
+        element: (
+          <ContentEdit
+            authService={authService}
+            dbService={dbService}
+            FileInput={FileInput}
+          />
+        ),
+      },
+      {
+        path: "viewPost",
+        element: <Article authService={authService} dbService={dbService} />,
+      },
+      {
+        path: "signup",
+        element: <SignupPage authService={authService} />,
+      },
+    ],
+  },
+]);
+
+export const UserContext = createContext();
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router}>
-    </RouterProvider>
+    <UserContext.Provider value={JSON.parse(localStorage.getItem("user"))}>
+      <RouterProvider router={router}></RouterProvider>
+    </UserContext.Provider>
   </React.StrictMode>
 );
 

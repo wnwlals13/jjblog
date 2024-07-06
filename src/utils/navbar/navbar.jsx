@@ -1,11 +1,15 @@
-import React, { memo, useEffect, useRef, useState } from "react";
+import React, { memo, useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MyModal from "../../components/myModal/myModal";
 import Sidebar from "../sidebar/sidebar";
 import styles from "./navbar.module.css";
 import LoginModal from "../../components/loginModal/loginModal";
+import { UserContext } from "../..";
 
 const Navbar = memo(({ authService, dbService, onLogin }) => {
+  const user = useContext(UserContext);
+  const [userInfo, setUserInfo] = useState({});
+
   const [userId, setUserId] = useState(null);
   const [name, setName] = useState(null);
   const [email, setEmail] = useState(null);
@@ -37,24 +41,33 @@ const Navbar = memo(({ authService, dbService, onLogin }) => {
         id: userId || null,
         name: name || null,
         email: email || null,
-      }});
+      },
+    });
   };
   const slideSidebar = () => {
     sidebarRef.current.className = `${styles.sideSection} ${styles.show}`;
     // console.log(sidebarRef.current.className);
   };
   const hideSidebar = (e) => {
-    console.log(e.target);
+    // console.log(e.target);
   };
 
   useEffect(() => {
-    authService.onAuthChange((user)=>{
-      console.log(user.uid, user.email, user.displayName);
+    // console.log(user);
+    setUserInfo(user);
+
+    authService.onAuthChange((user) => {
+      // console.log(user.uid, user.email, user.displayName);
       user && setName(user.displayName);
       user && setEmail(user.email);
       user && setUserId(user.uid);
-    })
+    });
   }, [authService]);
+
+  useEffect(() => {
+    console.log(userInfo.email);
+  }, [userInfo]);
+
   return (
     <>
       <header className={styles.header}>
@@ -73,12 +86,12 @@ const Navbar = memo(({ authService, dbService, onLogin }) => {
           </a>
         </div>
         <div className={styles.search}>
-          {name && (
+          {userInfo && (
             <a className={styles.user} onClick={onBtnClick}>
-              {name}
+              {userInfo.email}
             </a>
           )}
-          {!name && (
+          {!userInfo && (
             <a className={styles.user} onClick={() => navigate("/login")}>
               로그인
             </a>
