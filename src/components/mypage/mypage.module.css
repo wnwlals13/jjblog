@@ -1,19 +1,57 @@
+@value mainColor from '../../common/colors.css';
+@value mainGrey from '../../common/colors.css';
+@value mainWhite from '../../common/colors.css';
+
 .container {
   display: flex;
   justify-content: flex;
   padding-top: 5rem;
-  padding-left: 7rem;
-  padding-right: 7rem;
+  gap: 2rem;
+}
+
+.leftContainer {
+  width: 15rem;
+  display: flex;
+  flex-direction: column;
   gap: 2rem;
 }
 
 .profile {
-  width: 15rem;
-  height: 30rem;
+  width: 100%;
+  height: 20rem;
+  background-color: pink;
+  padding: 2rem;
+}
+
+.editBtn {
+  position: absolute;
+  right: 0;
+}
+
+.tags {
+  width: 100%;
+  height: 25rem;
   background-color: pink;
 }
 
 .postList {
   flex: 1;
+  padding: 2rem;
   background-color: pink;
+}
+
+.profileImg {
+  width: 100%;
+  height: 10rem;
+  background-color: gray;
+  border-radius: 50%;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.myBtn {
+  border: 1px solid mainColor;
+  background: #ffffff;
+  color: mainColor;
+  width: 100%;
 }
