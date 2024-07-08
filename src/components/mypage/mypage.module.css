@@ -1,0 +1,19 @@
+.container {
+  display: flex;
+  justify-content: flex;
+  padding-top: 5rem;
+  padding-left: 7rem;
+  padding-right: 7rem;
+  gap: 2rem;
+}
+
+.profile {
+  width: 15rem;
+  height: 30rem;
+  background-color: pink;
+}
+
+.postList {
+  flex: 1;
+  background-color: pink;
+}

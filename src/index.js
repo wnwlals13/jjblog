@@ -18,6 +18,7 @@ import LoginModal from "./components/loginModal/loginModal.jsx";
 import ContentEdit from "./components/content_edit/content_edit.jsx";
 import Article from "./components/article/article.jsx";
 import SignupPage from "./components/signup/signup.tsx";
+import Mypage from "./components/mypage/mypage.tsx";
 
 const authService = new AuthService();
 const dbService = new Database();
@@ -79,6 +80,7 @@ const router = createBrowserRouter([
         path: "signup",
         element: <SignupPage authService={authService} />,
       },
+      { path: "mypage", element: <Mypage /> },
     ],
   },
 ]);
