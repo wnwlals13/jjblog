@@ -34,7 +34,16 @@ export class authentication {
         const user = userCredential.user;
         console.log(user);
         window.location.href = "/";
-        // ...
+
+        const userInfo = {
+          name: user.displayName,
+          email: user.email,
+          uid: user.uid,
+          // token: user.accessToken,
+          profileImg: user.photoURL,
+        };
+
+        localStorage.setItem("user", JSON.stringify(userInfo));
       })
       .catch((error) => {
         const errorCode = error.code;

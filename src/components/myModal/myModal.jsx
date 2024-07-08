@@ -4,23 +4,21 @@ import styles from "./myModal.module.css";
 
 const MyModal = memo(({ display, onLogout }) => {
   const navigate = useNavigate();
-  const {state} = useLocation();
+  const { state } = useLocation();
   const onthirdClick = () => {
     navigate("/");
     display = false;
     onLogout();
   };
   const handleMenu = (event) => {
-    const dataId = event.target.dataset.id;
-    console.log(state);
+    let dataId = event.target.dataset.id;
+    // console.log(state);
     if (dataId === "newly") {
       navigate("/addPost", {
         state: state,
       });
-    } else if (dataId === "mypost") {
-      navigate( "/", {
-        state: state
-      });
+    } else if ((dataId = "mypage")) {
+      navigate("/mypage", { state });
     }
   };
 
@@ -31,7 +29,8 @@ const MyModal = memo(({ display, onLogout }) => {
       <li className={styles.listItem} data-id="newly" onClick={handleMenu}>
         새 글 쓰기
       </li>
-      <li>
+      <li className={styles.mypage} data-id="mypage" onClick={handleMenu}>
+        마이페이지
       </li>
       <li className={styles.listItem} data-id="logout" onClick={onthirdClick}>
         로그아웃

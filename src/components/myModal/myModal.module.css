@@ -1,4 +1,3 @@
-
 @value mainWhite from '../../common/colors.css';
 @value mainDeepGrey from '../../common/colors.css';
 
@@ -13,6 +12,8 @@
 
 .myModalList li {
   padding-bottom: 5px;
+  width: 10rem;
+  padding: 0.5rem;
 }
 .myModalList li:hover {
   color: mainDeepGrey;

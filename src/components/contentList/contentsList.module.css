@@ -8,19 +8,32 @@
   justify-content: center;
   align-items: center;
   background: #ffffff;
-
+  height: 100%;
 }
 
 .contentsContainer {
-  margin : 4em 4em;
-  max-width: 800px;
+  width: 100%;
+  max-width: 1440px;
   display: grid;
+
   gap: 20px 20px;
   grid-template-columns: repeat(4, 1fr);
 }
 
-@media (max-width: 668px) {
+@media (max-width: 1440px) {
+  .contentsContainer {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 1032px) {
   .contentsContainer {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .contentsContainer {
+    grid-template-columns: repeat(1, 1fr);
   }
 }
