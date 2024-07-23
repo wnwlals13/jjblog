@@ -12,11 +12,11 @@ import AuthService from "./service/auth_service.js";
 import Database from "./service/database";
 import ImgFileInput from "./components/file_input/file_input";
 import ImgService from "./service/img_service";
-import ContentsList from "./components/contentList/contentsList.jsx";
-import ContentAdd from "./components/content_add/content_add.jsx";
+import ContentsList from "./components/contentList/contentsList";
+import ContentAdd from "./components/content_add/content_add.tsx";
 import LoginModal from "./components/loginModal/loginModal.jsx";
-import ContentEdit from "./components/content_edit/content_edit.jsx";
-import Article from "./components/article/article.jsx";
+import ContentEdit from "./components/content_edit/content_edit.tsx";
+import { Article } from "./components/article/article.tsx";
 import SignupPage from "./components/signup/signup.tsx";
 import Mypage from "./components/mypage/mypage.tsx";
 
@@ -63,7 +63,7 @@ const router = createBrowserRouter([
         element: <LoginModal authService={authService} />,
       },
       {
-        path: "editPost",
+        path: "editPost/:id",
         element: (
           <ContentEdit
             authService={authService}
@@ -73,8 +73,8 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "viewPost",
-        element: <Article authService={authService} dbService={dbService} />,
+        path: "viewPost/:id",
+        element: <Article />,
       },
       {
         path: "signup",

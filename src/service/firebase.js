@@ -7,6 +7,7 @@ const firebaseConfig = {
   databaseURL: process.env.REACT_APP_DATABASE_URL,
   projectId: process.env.REACT_APP_PROJECT_ID,
   appId: process.env.REACT_APP_APP_ID,
+  storageBucket: process.env.REACT_APP_STORAGE_BUCKET,
 };
 
 // Initialize Firebase
