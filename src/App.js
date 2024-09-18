@@ -1,17 +1,16 @@
-import styles from "./app.module.css";
 import { Outlet } from "react-router-dom";
 import Navbar from "./utils/navbar/navbar";
 import Footer from "./utils/footer/footer";
 import styled from "styled-components";
 
-function App({ authService, dbService, FileInput }) {
+function App() {
   return (
     <AppContainer>
-      <Navbar authService={authService} />
+      <Navbar />
       <MainContainer>
         <Outlet />
       </MainContainer>
-      {/* <Footer/> */}
+      <Footer />
     </AppContainer>
   );
 }
@@ -57,7 +56,7 @@ const AppContainer = styled.div`
   .btnDefault {
     background: #66a6ff;
     color: #ffffff;
-    font-size: 1.2rem;
+    font-size: 1rem;
     padding: 0.3rem 1rem;
     border-radius: 1.2rem;
     /* transition: all 100ms ease-in; */
@@ -67,7 +66,7 @@ const AppContainer = styled.div`
     border: 1px solid #66a6ff;
     color: #66a6ff;
     background: #ffffff;
-    font-size: 1.2rem;
+    font-size: 1rem;
     padding: 0.3rem 1rem;
     border-radius: 1.2rem;
     /* transition: all 100ms ease-in; */
@@ -80,14 +79,17 @@ const AppContainer = styled.div`
 
   .defaultTextInput {
     border: none;
-    border-bottom: 1px solid #aeaeae;
-    font-size: 1.8rem;
+    font-size: 2rem;
   }
   .defaultTextInput:focus {
     outline: 0;
+  }
+  .custom-image {
+    width: 100%;
   }
 `;
 
 const MainContainer = styled.div`
   margin-top: 1rem;
+  min-height: 100vh;
 `;

@@ -30,13 +30,7 @@ const FileInput = memo((props) => (
 const router = createBrowserRouter([
   {
     path: "/",
-    element: (
-      <App
-        authService={authService}
-        dbService={dbService}
-        FileInput={FileInput}
-      />
-    ),
+    element: <App />,
     children: [
       {
         path: "/",

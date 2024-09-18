@@ -1,17 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Database from "../../service/database";
-import Footer from "../../utils/footer/footer.jsx";
-// import Navbar from "../../utils/navbar/navbar.tsx";
 import { ContentItem } from "../content/contentItem";
-// import styles from "./contentsList.module.css";
 import styled from "styled-components";
 
 const ContentsList = () => {
   const navigate = useNavigate();
   const db = new Database();
-
-  // const historyId = navigate?.location?.state;
   const [contentList, setContentList] = useState([]);
 
   const getAllContent = async () => {
@@ -21,19 +16,7 @@ const ContentsList = () => {
 
   useEffect(() => {
     getAllContent();
-    console.log(contentList);
   }, []);
-
-  const oneArticle = (result: string) => {
-    // navigate("/viewPost", {
-    //   state: {
-    //     id: historyId ? historyId.id : null,
-    //     name: historyId ? historyId.name : null,
-    //     // email: historyId ? historyId.email : null,
-    //     article: result,
-    //   },
-    // });
-  };
 
   const handleClick = (param: string) => {
     navigate(`/viewPost/${param}`);
@@ -51,7 +34,6 @@ const ContentsList = () => {
 export default ContentsList;
 
 const ContentListContainer = styled.section`
-  width: 100%;
   max-width: 1440px;
   display: grid;
 

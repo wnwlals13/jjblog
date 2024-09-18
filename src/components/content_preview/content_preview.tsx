@@ -4,6 +4,7 @@ import styled from "styled-components";
 export interface Preview {
   title?: string;
   htmlString?: string;
+  id: string;
 }
 
 /**
@@ -18,6 +19,7 @@ const ContentPreview = memo(({ previewText }: { previewText: Preview }) => {
       {htmlString && (
         <div dangerouslySetInnerHTML={{ __html: htmlString }}></div>
       )}
+      {/* {htmlString} */}
     </>
   );
 });

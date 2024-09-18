@@ -5,18 +5,16 @@ import React, {
   useRef,
   useState,
   KeyboardEvent,
-  useCallback,
   MouseEvent,
 } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-// import styles from "./content_form.module.css";
-import Hashtag from "../hashtag/hashtag";
 import Editor from "../editor/editor";
 import styled from "styled-components";
 import { UserContext } from "../../index";
 import Database from "../../service/database";
 import { Content } from "../../d";
 import { Preview } from "../content_preview/content_preview";
+import { getDownloadURL } from "firebase/storage";
 
 interface Iprops {
   mode: number;
@@ -24,94 +22,105 @@ interface Iprops {
   previewText?: Preview;
 }
 
-const useGettingTitle = (param: any) => {
-  const [title, setTitle] = useState(null);
-
-  const ref = useCallback((el: HTMLInputElement) => {
-    if (el) {
-      el.value = param.title;
-      console.log(param);
-      setTitle(param.title);
-    }
-  }, []);
-
-  return [title, ref];
-};
-
 const ContentForm = memo(({ mode, updateText, previewText }: Iprops) => {
-  const [title, titleRef] = useGettingTitle(previewText);
-  // const [title, titleRef]: any = () => {
-  // const [title, setTitle] = useState("");
-  // const ref = useCallback((el: HTMLInputElement) => {
-  //   if (el !== null) console.log(el);
-  // }, []);
-  // return [title, setTitle];
-  // };
-  // const titleRef = useRef<HTMLInputElement | null>(null);
-  // const titleRefCallback = useCallback((el: HTMLInputElement | null) => {
-  //   console.log(el);
-  // }, []);
-  const [targetId, setTargetId] = useState("");
-  const [url, setUrl] = useState("");
-
-  const [hashtag, setHashtag] = useState([]);
-  const [mainText, setMainText] = useState(previewText?.htmlString);
-  const [updateFile, setUpdateFile] = useState({
-    fileName: null,
-    fileURL: null,
-  });
-  const navigate = useNavigate();
   const user = useContext(UserContext);
-  // const editorMode = useState<number>(mode); // 1: 생성(default), 2:수정
-  console.log("mode", mode);
+  const db = new Database();
+  const navigate = useNavigate();
+  const targetIdRef = useRef<string>(previewText?.id || Date.now().toString());
+  const [url, setUrl] = useState<string[]>([]);
+  const [file, setFile] = useState<File[]>([]);
+  const titleRef = useRef<HTMLInputElement>(null);
+  const [mainText, setMainText] = useState(previewText?.htmlString);
+  const [contents, setContents] = useState("");
 
   useEffect(() => {
-    // 게시글 id가 생성되지 않았다면 생성!
-    // if (!newId.length) setNewId(Date.now().toString());
-    // [게시글 수정] 정보 세팅
-    // if (previewText) {
-    //   if (!titleRef.current) return;
-    //   titleRef.current = previewText?.title;
-    //   console.log("previewText", previewText);
-    // }
+    return () => {
+      console.log("unmount");
+    };
+  });
+
+  useEffect(() => {
+    if (titleRef.current && previewText?.title) {
+      titleRef.current.value = previewText?.title;
+    }
+    if (previewText?.id) targetIdRef.current = previewText.id;
   }, []);
 
   const onUpload = (e: MouseEvent<HTMLButtonElement>) => {
-    // event.preventDefault();
-    console.log(title, titleRef);
-    // if (!titleRef && !titleRef.current) return;
+    let isAllUpdated = false;
+    if (mode !== 1 && !previewText) return;
 
-    // let title = titleRef.current;
-    // console.log(title);
-
-    if (!title) {
+    if (!titleRef.current?.value) {
       alert("제목을 입력해주세요.");
       return;
-    } else if (mainText === "") {
+    }
+    if (!mainText) {
       alert("내용을 입력해주세요");
+      return;
     }
 
-    const contentObj = {
-      id: targetId,
+    const contentObj: Content = {
+      id: targetIdRef.current,
       createDate: getFormatDate(new Date()) || "",
       updateDate: getFormatDate(new Date()) || "",
       writer: user.email,
-      title: title,
+      title: titleRef.current?.value,
       contents: mainText,
       imgUrl: url,
+      imgFile: file,
     };
-    console.log(contentObj);
-    // if (mode === 1) {
-    //   addContent(contentObj);
-    // } else {
-    //   // editContent();
-    // }
+
+    // img temp 삭제
+    if (url.length > 0) {
+      db.deleteImgTemp({ uid: contentObj.id, imgs: url, file: file });
+
+      // img 저장
+      let updatedText = mainText;
+
+      db.addImgFile({
+        uid: contentObj.id,
+        imgs: url,
+        file: file,
+      }).then(async (res) => {
+        if (res && res.length > 0) {
+          for (let i = 0; i < res.length; i++) {
+            const file_url = await getDownloadURL(res[i].ref);
+            const regExp = /<img[^>]+src=[\"']?([^>\"']+)[\"']?[^>]*>/g;
+            updatedText.replace(regExp, (match, p1) => {
+              return match.replace(p1, file_url);
+            });
+          }
+
+          setMainText(updatedText);
+        }
+
+        // content 이미지 링크 새로이 수정
+        contentObj["contents"] = updatedText;
+        if (mode === 1) {
+          addContent(contentObj);
+        } else {
+          editContent(contentObj);
+        }
+      });
+    } else {
+      if (mode === 1) {
+        addContent(contentObj);
+      } else {
+        editContent(contentObj);
+      }
+    }
   };
 
   /* 새글 추가 */
   const addContent = async (params: Content) => {
-    const db = new Database();
     await db.addContent(params).then((res) => {
+      navigate("/");
+    });
+  };
+
+  /* 내글 수정 */
+  const editContent = async (params: Content) => {
+    await db.editContent(params).then((res) => {
       navigate("/");
     });
   };
@@ -122,45 +131,7 @@ const ContentForm = memo(({ mode, updateText, previewText }: Iprops) => {
     updateText((prev) => {
       return { ...prev, title: input.value };
     });
-
-    // e.preventDefault();
-    // console.log(title, e);
-    // let value = title.value;
-    // console.log(e.currentTarget.value);
-    // updateContent({
-    //   ...contents,
-    //   [e.currentTarget.name]: e.currentTarget.value,
-    //   // hashtag,
-    //   updateFile,
-    // });
   };
-
-  // const onFileChange = (file) => {
-  //   file && setUpdateFile({ fileName: file.name, fileURL: file.url });
-  // };
-
-  // const hashTagHandle = (data) => {
-  //   setHashtag(data);
-  // };
-  const onChangeField = (data: string) => {
-    // const template = document.createElement("div");
-    // template.innerHTML = data;
-    // console.log("form", data, "왜필요한가");
-
-    // data && setMainText(data);
-    console.log("onchangefield", data);
-    updateText((prev) => {
-      return { ...prev, htmlString: data };
-    });
-    setMainText(data);
-  };
-  // useEffect(() => {
-  // updateContent({
-  //   ...contents,
-  //   ["mainContents"]: mainText,
-  //   updateFile,
-  // });
-  // }, [updateFile, mainText]);
 
   const getFormatDate = (date: Date) => {
     var year = date.getFullYear();
@@ -170,6 +141,14 @@ const ContentForm = memo(({ mode, updateText, previewText }: Iprops) => {
     day = day >= 10 ? day : 0 + day;
     return year + "-" + month + "-" + day;
   };
+
+  useEffect(() => {
+    updateText((prev) => {
+      return { ...prev, htmlString: contents };
+    });
+    setMainText(contents);
+  }, [contents]);
+
   return (
     <FormContainer>
       <div>
@@ -186,14 +165,15 @@ const ContentForm = memo(({ mode, updateText, previewText }: Iprops) => {
       </div>
       <EditorWrapper>
         <Editor
-          onChangeField={onChangeField}
           mainContents={mainText}
-          setId={setTargetId}
+          setContents={setContents}
+          targetIdRef={targetIdRef}
           setUrl={setUrl}
+          setFile={setFile}
         />
       </EditorWrapper>
       <div>
-        <button className="btnDefault_outline uploadBtn" onClick={onUpload}>
+        <button className="btnDefault_outline" onClick={onUpload}>
           업로드
         </button>
       </div>
@@ -209,10 +189,6 @@ const FormContainer = styled.section`
   justify-content: space-between;
   height: 100%;
   gap: 1rem;
-
-  // .uploadBtn {
-  //   flex: 1;
-  // }
 `;
 
 const EditorWrapper = styled.div`

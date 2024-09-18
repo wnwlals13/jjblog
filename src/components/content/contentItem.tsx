@@ -3,6 +3,11 @@ import { Content } from "../../d";
 import styled from "styled-components";
 import { editableInputTypes } from "@testing-library/user-event/dist/utils";
 import Database from "../../service/database";
+import { getDownloadURL } from "firebase/storage";
+
+interface ProfileSmProps {
+  contentProfile: string;
+}
 
 export const ContentItem = memo(
   ({
@@ -14,33 +19,32 @@ export const ContentItem = memo(
   }) => {
     const { id, title, writer, createDate, updateDate, contents, imgUrl } =
       item;
-    const [mainImg, setMainImg] = useState<string | null>(null);
+    const [mainImg, setMainImg] = useState<string>("");
+    const [contentProfile, setContentProfile] = useState<string>("");
     const db = new Database();
 
     const handleReadContent = () => {
       handleClick(id);
     };
 
-    const downloadURL = async () => {
-      if (imgUrl) {
-        const result = await db.getURL(id, imgUrl);
-        console.log(result);
-        setMainImg(result);
-      }
-    };
-
     useEffect(() => {
-      // if (!contents) return;
-      // const dom = document.createElement("div");
-      // dom.innerHTML = contents;
-      // const mainImg = dom.getElementsByTagName("img")[0]?.src;
-      // if (mainImg) {
-      //   setMainImg(mainImg);
-      // }
-      downloadURL();
-    }, [contents]);
+      // console.log("writer=>", writer);
+      async function fetchMainImg() {
+        // console.log(imgUrl);
+        const data = await db.getURL(id, imgUrl[0]);
+        if (data) setMainImg(data);
+      }
+      if (imgUrl?.length > 0) fetchMainImg();
 
-    console.log(mainImg);
+      async function fetchProfileImg() {
+        const data = await db.getProfileImg(writer);
+        if (data) {
+          const file_url = await getDownloadURL(data.items[0]);
+          if (file_url) setContentProfile(file_url);
+        }
+      }
+      fetchProfileImg();
+    }, []);
 
     return (
       <ContentContainer onClick={handleReadContent}>
@@ -50,7 +54,7 @@ export const ContentItem = memo(
           <div>{createDate}</div>
         </MetaWrapper>
         <UserInfoWrapper>
-          <ProfileSm>profile</ProfileSm>
+          <ProfileSm profile={contentProfile}></ProfileSm>
           <div>{writer}</div>
         </UserInfoWrapper>
       </ContentContainer>
@@ -91,13 +95,16 @@ const UserInfoWrapper = styled.div`
   font-size: 14px;
   color: #aeaeae;
   display: flex;
+  align-items: center;
   gap: 0.5rem;
 `;
 
-const ProfileSm = styled.div`
+const ProfileSm = styled.div<{ profile: string }>`
   background-color: #aeaeae;
-  width: 18px;
-  height: 100%;
+  width: 25px;
+  height: 25px;
   overflow: hidden;
   border-radius: 50%;
+  background: url(${(props) => props.profile});
+  background-size: 100% 100%;
 `;

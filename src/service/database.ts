@@ -5,12 +5,12 @@ import {
   doc,
   setDoc,
   getFirestore,
-  DocumentSnapshot,
-  QuerySnapshot,
   getDoc,
   query,
   where,
   orderBy,
+  updateDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import {
   deleteObject,
@@ -21,8 +21,6 @@ import {
   uploadBytes,
 } from "firebase/storage";
 import { Content } from "../d";
-import { useContext } from "react";
-import { UserContext } from "../index";
 
 const db = getFirestore();
 const storage = getStorage(app);
@@ -37,18 +35,14 @@ class Database {
     docSnap.forEach((item) => {
       result.push(item.data());
     });
-
     return result;
   };
   /* 단일 게시글 조회 */
   getEachContent = async (id: string) => {
-    console.log(db, id);
     const docSnap = await getDoc(doc(db, "content", id));
     if (docSnap.exists()) {
-      console.log("Document data:", docSnap.data());
       return docSnap.data();
     } else {
-      // docSnap.data() will be undefined in this case
       console.log("No such document!");
     }
   };
@@ -66,19 +60,18 @@ class Database {
 
   /* 게시글 추가 (단일) */
   addContent = async (content: Content) => {
-    await setDoc(doc(db, "content", content.id), content);
+    try {
+      let { imgFile, ...newContent } = content;
+      await setDoc(doc(db, "content", newContent.id), newContent);
+      // }
+    } catch (error) {
+      if (error instanceof Error)
+        throw new Error(
+          `게시글 추가에 실패하였습니다. message=>${error.message}`
+        );
+    }
   };
-  // addImgFile = async (ImgFile: FormData) => {
-  //   const contentId = ImgFile.get("targetId")! as string;
-  //   const file = ImgFile.get("file")! as File;
-  /* 게시글 이미지 파일 추가 */
-  addImgFile = async (obj: { contentId: string; fileURL: any }) => {
-    let { contentId, fileURL } = obj;
-    const storageRef = ref(storage, `images/${contentId}/${fileURL.name}`);
 
-    const uploadFile = await uploadBytes(storageRef, fileURL);
-    return uploadFile;
-  };
   /* 게시글 이미지 폴더에 모든 파일 다운로드 */
   getImgFiles = async (contentId: string) => {
     const storageRef = ref(storage, `images/${contentId}`);
@@ -86,7 +79,11 @@ class Database {
   };
 
   getURL = async (id: string, name: string) => {
-    return await getDownloadURL(ref(storage, `images/${id}/${name}`));
+    try {
+      return await getDownloadURL(ref(storage, `images/${id}/${name}`));
+    } catch (err) {
+      if (err instanceof Error) throw new Error(`now image, ${err.message}`);
+    }
   };
   /* 게시글 이미지 파일 추가 */
   addProfile = async (obj: { userId: string; fileURL: any }) => {
@@ -97,25 +94,85 @@ class Database {
     return uploadFile;
   };
 
+  /* 게시글 수정 */
+  editContent = async (param: Content) => {
+    const ref = doc(db, "content", param.id);
+
+    // 수정 시, 메인이미지가 지워졌다면, 메인이미지 변경 필요!
+    const update = {
+      title: param.title,
+      contents: param.contents,
+    };
+
+    await updateDoc(ref, update);
+  };
+
   /* 파일 삭제 */
-  // deleteProfile = async () => {
-  //   deleteObject
-  // }
-  // saveCommnet(userId, comment) {
-  //   //
-  // }
-  // updateContent(userId, content) {
-  //   // console.log(userId, content);
-  //   firebaseDB.ref(`/contents/${userId}/${content.id}`).update(content);
-  // }
-  // removeContent(userId, contentId) {
-  //   firebaseDB.ref(`/contents/${userId}/${contentId}`).remove();
-  // }
-  // readAllContent() {
-  //   const result = ref("contents").once("value");
-  // }
-  // readMyContent(userId) {
-  //   return firebaseDB.ref(`content/${userId}`).once("value");
-  // }
+  deleteImg = async (obj: { uid: string; url: string[] }) => {
+    const { uid, url } = obj;
+    for (let i = 0; i < url.length; i++) {
+      const desertRef = ref(storage, `images/${uid}/${url[i]}`);
+      await deleteObject(desertRef);
+    }
+  };
+
+  /* 게시글 삭제 */
+  deleteContent = async (obj: { uid: string; url: string[] }) => {
+    const { uid, url } = obj;
+    // 속하는 이미지 있으면 all 삭제
+    this.deleteImg(obj);
+
+    // 게시글 삭제
+    await deleteDoc(doc(db, "content", uid));
+  };
+
+  /* (임시) 게시글 이미지 파일 추가 */
+  addImgTemp = async (obj: { contentId: string; fileURL: any }) => {
+    let { contentId, fileURL } = obj;
+    const storageRef = ref(storage, `images/temp/${contentId}/${fileURL.name}`);
+    const uploadFile = await uploadBytes(storageRef, fileURL);
+    return uploadFile;
+  };
+
+  /* 게시글 이미지 파일 추가 */
+  addImgFile = async (obj: { uid: string; imgs: string[]; file: File[] }) => {
+    try {
+      let { uid, imgs, file } = obj;
+      let arr = [];
+      for (let i = 0; i < file.length; i++) {
+        const storageRef = ref(storage, `images/${uid}/${file[i].name}`);
+        const uploadFile = await uploadBytes(storageRef, file[i]);
+        arr.push(uploadFile);
+      }
+      return arr;
+    } catch (error) {
+      if (error instanceof Error)
+        throw new Error(`이미지 저장에 실패했습니다. ${error.message}`);
+    }
+  };
+
+  /* 임시 이미지 제거 */
+  deleteImgTemp = async (obj: {
+    uid: string;
+    imgs: string[];
+    file: File[];
+  }) => {
+    const { uid, imgs, file } = obj;
+    try {
+      for (let i = 0; i < imgs.length; i++) {
+        const tempImgRef = ref(storage, `images/temp/${uid}/${imgs[i]}`);
+        if (tempImgRef) await deleteObject(tempImgRef);
+      }
+    } catch (error) {
+      if (error instanceof Error)
+        throw new Error(`폴더 삭제에 실패했습니다. ${error.message}`);
+    }
+  };
+
+  /* 블로그 게시글 리스트 조회 시, 작성자 프로필 이미지 불러오기 */
+  getProfileImg = async (id: string) => {
+    const storageListRef = ref(storage, `profile/${id}`);
+    return await listAll(storageListRef);
+  };
 }
 export default Database;

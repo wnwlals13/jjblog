@@ -1,6 +1,6 @@
-
 import React, { createRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
 
 const Comments = ({ postsId }) => {
   const history = useNavigate();
@@ -21,6 +21,6 @@ const Comments = ({ postsId }) => {
     });
     commentRef.current.appendChild(utterances);
   }, [postsId, commentRef]);
-  return <div className="comments" ref={commentRef}></div>;
+  return <div ref={commentRef}></div>;
 };
 export default Comments;

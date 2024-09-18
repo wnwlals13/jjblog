@@ -3,21 +3,14 @@ import { useLocation } from "react-router-dom";
 import { styled } from "styled-components";
 import ContentForm from "../content_form/content_form";
 import ContentPreview, { Preview } from "../content_preview/content_preview";
-import Editor from "../editor/editor";
 
 const ContentEdit = () => {
   const { state } = useLocation();
   const { contents, createDate, id, imgUrl, title, updarteDate, writer } =
     state;
 
-  const previewText = { title, htmlString: contents };
+  const previewText = { title, htmlString: contents, id };
   const [text, setText] = useState<Preview>(previewText);
-
-  useEffect(() => {
-    console.log(text);
-  }, [text]);
-
-  // const onChangeField = () => {};
 
   return (
     <FormContainer>

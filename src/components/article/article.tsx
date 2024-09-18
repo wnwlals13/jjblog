@@ -1,8 +1,10 @@
 import React, { memo, useContext, useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import Navbar from "../../utils/navbar/navbar";
-// import styles from "./article.module.css";
-import Comments from "../comments/comments";
+import {
+  redirect,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import Parser from "html-react-parser";
 import Database from "../../service/database";
 import { styled } from "styled-components";
@@ -16,7 +18,7 @@ export const Article = () => {
 
   const [contentId, setContentId] = useState(id);
   const [article, setArticle] = useState<Content>();
-  const commentsEl = useRef<HTMLDivElement>(null);
+  const commentsRef = useRef<Element>();
   const user = useContext(UserContext);
 
   function isTypeContent(param: any): param is Content {
@@ -33,10 +35,10 @@ export const Article = () => {
   }, [contentId]);
 
   useEffect(() => {
-    const isComment = commentsEl.current?.firstChild;
-    // console.log(!isComment);
-    // return () => {
-    //   if (!isComment) {
+    const isComment = commentsRef.current?.firstChild;
+    console.log("isComment", isComment);
+    if (isComment) return;
+
     const el = document.createElement("script");
     el.async = true;
     el.setAttribute("src", "https://utteranc.es/client.js");
@@ -45,28 +47,43 @@ export const Article = () => {
     el.setAttribute("label", "pathname");
     el.setAttribute("theme", "github-light");
     el.setAttribute("crossorigin", "anonymous");
-
-    commentsEl.current?.appendChild(el);
-    //   }
-    // };
-    console.log();
+    commentsRef.current?.appendChild(el);
   }, []);
 
   if (!article) return <></>;
 
   return (
     <Container>
-      <button onClick={() => navigate("/")}>목록으로</button>
       <BtnWrapper>
         <h1>{article.title}</h1>
-        {article?.writer === user.email ? (
-          <button
-            onClick={() =>
-              navigate(`/editPost/${contentId}`, { state: article })
-            }
-          >
-            수정하기
-          </button>
+        {user && article?.writer === user.email ? (
+          <EditBtns>
+            <button
+              onClick={() => {
+                if (window.confirm("해당 글을 수정하시겠습니까?"))
+                  navigate(`/editPost/${contentId}`, { state: article });
+              }}
+            >
+              수정하기
+            </button>
+            <button
+              onClick={async () => {
+                if (
+                  window.confirm("해당 글을 삭제하시겠습니까?") &&
+                  contentId
+                ) {
+                  const db = new Database();
+                  await db
+                    .deleteContent({ uid: contentId, url: article.imgUrl })
+                    .then((res) => {
+                      navigate("/");
+                    });
+                }
+              }}
+            >
+              삭제하기
+            </button>
+          </EditBtns>
         ) : (
           <></>
         )}
@@ -75,21 +92,49 @@ export const Article = () => {
         <div>{article.writer}</div>
         <div>{article.createDate}</div>
       </MetaWrapper>
-      <div>{Parser(article.contents)}</div>
-      <div ref={commentsEl} />
+      <ContentWrapper>{Parser(article.contents)}</ContentWrapper>
+      <CommentDiv />
     </Container>
   );
 };
 const Container = styled.div`
   margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-contents: center;
+  align-items: center;
+  margin: 0 auto;
+
+  @media (min-width: 500px) {
+    max-width: 700px;
+    width: 100%;
+  }
 `;
 const BtnWrapper = styled.div`
+  width: 100%;
   display: flex;
+  justify-content: space-between;
   align-items: flex-end;
   gap: 2rem;
   margin: 2rem 0;
 `;
 const MetaWrapper = styled.div`
+  width: 100%;
   display: flex;
   gap: 1rem;
+`;
+const ContentWrapper = styled.div`
+  width: 100%;
+`;
+const CommentDiv = styled.div`
+  margin-top: 80px;
+
+  .utterances {
+    max-width: 100%;
+  }
+`;
+const EditBtns = styled.div`
+  & button {
+    margin-right: 10px;
+  }
 `;

@@ -5,6 +5,9 @@ import { UserContext } from "../../index";
 import styled from "styled-components";
 import { Authentication } from "../../service/authentication";
 
+/**
+ * Navbar 네비게이션
+ */
 const Navbar = memo(() => {
   const auth = new Authentication();
   const user = useContext(UserContext);
@@ -19,6 +22,7 @@ const Navbar = memo(() => {
       navigate("/login");
     }
   };
+
   const onLogout = () => {
     auth.logout();
     setDisplay(false);
@@ -27,17 +31,25 @@ const Navbar = memo(() => {
   const onMouseMove = () => {
     setDisplay(true);
   };
+
   const onMouseLeave = () => {
     setDisplay(false);
   };
+
+  /* 게시글 검색 인풋 박스 나오기 */
+  const handleSearch = () => {};
 
   return (
     <>
       <Header>
         <MainLogo>
-          <a onClick={() => navigate("/")}>차근차근 기록하기</a>
+          <a onClick={() => navigate("/")}>JJlog</a>
         </MainLogo>
         <div>
+          {/* <FontAwesomeIcon
+            className="fa-solid fa-magnifying-glass fa-lg"
+            onClick={handleSearch}
+          ></FontAwesomeIcon> */}
           <button className="btnDefault" onClick={onLoginBtnClick}>
             {(user && (user.name || user.email.split("@")[0])) || "로그인"}
           </button>
@@ -80,4 +92,12 @@ const ModalContainer = styled.section`
 
 const MainLogo = styled.div`
   margin: 1.5rem 0;
+  & a {
+    font-size: 20px;
+    font-weight: bold;
+  }
+`;
+
+const FontAwesomeIcon = styled.i`
+  margin-right: 15px;
 `;

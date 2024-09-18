@@ -31,7 +31,6 @@ const LoginModal = ({ authService }) => {
 
     auth.loginSocial(id);
     if (user) navigate("/");
-    // onLogIn(data.user.uid)
   };
 
   /* Function : 로그인 함수 */
@@ -48,7 +47,6 @@ const LoginModal = ({ authService }) => {
     if (email === "" || password === "") return alert("정보를 입력해주세요.");
 
     // 존재하지 않는 유저
-
     auth.login(email, password);
   };
 
@@ -68,7 +66,6 @@ const LoginModal = ({ authService }) => {
   };
   return (
     <LoginContainer>
-      {/* <section className={styles.navContainer}></section> */}
       <LoginWrapper>
         <div className={styles.loginHeader}>
           <img src={mainImg} alt="loginimg" className={styles.loginImg} />
@@ -140,6 +137,8 @@ const LoginContainer = styled.section`
 const InputField = styled.input`
   width: 100%;
   margin-bottom: 0.5rem;
+  border: 1px solid gray;
+  height: 25px;
 `;
 
 const InputLabel = styled.p`

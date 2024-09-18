@@ -14,66 +14,20 @@ const ContentAdd = memo(() => {
   const [title, setTitle] = useState("");
 
   const history = useNavigate();
-  // const historyId = history?.location?.state;
-  // const historyArticle = history?.location?.state?.article;
-  // const goToMain = () => {
-  //   history("/", {
-  //     state: {
-  //       id: historyId ? historyId.id : null,
-  //       name: historyId ? historyId.name : null,
-  //       email: historyId ? historyId.email : null,
-  //     },
-  //   });
-  // };
-  // const addContent = (content) => {
-  //   db.addContent(content);
-  //   history("/");
-  // setContents((contents) => {
-  //   let update = { ...contents };
-  //   update[content.id] = content;
-  //   return update;
-  // });
-  // console.log(content);
-  // dbService.addContent(content);
-  // goToMain();
-  // };
-  // const updateText = (obj) => {
-  //   let { title, htmlString } = obj;
-  //   console.log(title, htmlString, obj);
-  // setHtmlString(data);
-  // };
-
-  // useEffect(() => {
-  //   setContents(historyArticle);
-  // }, [historyArticle]);
 
   useEffect(() => {
     console.log("preview", text);
   }, [text]);
 
   return (
-    // <section className={styles.container}>
     <FormContainer>
-      {/* <div className={styles.inputWrap}> */}
       <LeftContainer>
-        {/* {!historyArticle && ( */}
-        <ContentForm
-          // contents={contents}
-          // addContent={addContent}
-          // updateContent={updateContent}
-          mode={1}
-          updateText={setText}
-          // FileInput={FileInput}
-        />
-        {/* )} */}
+        <ContentForm mode={1} updateText={setText} />
       </LeftContainer>
-      {/* <div className={styles.prevWrap}> */}
       <RightContainer>
         {text && <ContentPreview previewText={text} />}
       </RightContainer>
-      {/* </div> */}
     </FormContainer>
-    // </section>
   );
 });
 
