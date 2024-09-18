@@ -27,8 +27,8 @@ const FileInput = memo(({ imgService, name, onFileChange }) => {
       />
       <div className={styles.buttonWrap}>
         {!loading && (
-          <button className={styles.button} onClick={onButtonClick}>
-            {name || "이미지 업로드"}
+          <button className="" onClick={onButtonClick}>
+            {name || "메인 이미지 업로드"}
           </button>
         )}
         {loading && <div className={styles.loading}></div>}

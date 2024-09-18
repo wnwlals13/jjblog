@@ -3,13 +3,19 @@ import {
   getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  GithubAuthProvider,
+  signInWithPopup,
+  updateProfile,
 } from "firebase/auth";
+import { app } from "./firebase";
 
-// import app from "./firebase";
-const app = require("./firebase");
-const auth = getAuth();
+const auth = getAuth(app);
 
-export class authentication {
+/**
+ * Auth 관련 api
+ */
+export class Authentication {
   signup(email: string, password: string) {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
@@ -44,10 +50,65 @@ export class authentication {
         };
 
         localStorage.setItem("user", JSON.stringify(userInfo));
+        window.location.replace("/");
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
+
+        if (errorCode == "auth/invalid-email") {
+          alert("이메일 형식 틀림");
+        }
       });
+  }
+
+  loginSocial(providerName: string) {
+    const authProvider = this.getProvider(providerName);
+    const provide =
+      providerName === "Google" ? GoogleAuthProvider : GithubAuthProvider;
+    signInWithPopup(auth, authProvider).then((result) => {
+      const credential = provide.credentialFromResult(result);
+      const token = credential?.accessToken;
+
+      const user = result.user;
+
+      const userInfo = {
+        name: user.displayName,
+        email: user.email,
+        uid: user.uid,
+        profileImg: user.photoURL,
+      };
+
+      localStorage.setItem("user", JSON.stringify(userInfo));
+      window.location.replace("/");
+    });
+  }
+
+  getProvider(providerName: string) {
+    switch (providerName) {
+      case "Google":
+        return new GoogleAuthProvider();
+      case "Github":
+        return new GithubAuthProvider();
+      default:
+        throw new Error(`Not supported provider : ${providerName}`);
+    }
+  }
+
+  logout() {
+    localStorage.removeItem("user");
+    return auth.signOut();
+  }
+
+  updateUserInfo(obj: {}) {
+    if (!auth.currentUser) return;
+    updateProfile(auth.currentUser, obj).then((res) => {
+      //profile updated!
+      if (auth.currentUser) {
+        console.log(auth.currentUser, res);
+        localStorage.setItem("user", JSON.stringify(auth.currentUser));
+        window.location.reload(); // 새로고침
+      }
+    });
   }
 }

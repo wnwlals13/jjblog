@@ -1,5 +1,5 @@
 import React, { FormEvent, ReactElement, useState } from "react";
-import { authentication } from "../../service/authentication";
+import { Authentication } from "../../service/authentication";
 import { Wrapper, FormWrapper } from "./signup.module";
 
 const emailRegEx =
@@ -25,7 +25,7 @@ export default function SignupPage() {
 
     // 회원가입
     console.log("submit", email, password);
-    const auth = new authentication();
+    const auth = new Authentication();
     const user = auth.signup(email, password);
     console.log("signup.ts", user);
   };
