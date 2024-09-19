@@ -18,14 +18,14 @@ const LoginModal = ({ authService }) => {
   let [isEmailValid, setIsEmailValid] = useState(false);
   let [isPasswordValid, setIsPasswordValid] = useState(false);
 
-  const onLogIn = useCallback(
-    (userId, userName, userEmail) => {
-      navigate("/", {
-        state: { id: userId, name: userName, email: userEmail },
-      });
-    },
-    [navigate]
-  );
+  // const onLogIn = useCallback(
+  //   (userId, userName, userEmail) => {
+  //     navigate("/", {
+  //       state: { id: userId, name: userName, email: userEmail },
+  //     });
+  //   },
+  //   [navigate]
+  // );
   const onClick = (event) => {
     const id = event.currentTarget.id;
 
