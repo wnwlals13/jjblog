@@ -27,17 +27,28 @@ const ContentForm = memo(({ mode, updateText, previewText }: Iprops) => {
   const db = new Database();
   const navigate = useNavigate();
   const targetIdRef = useRef<string>(previewText?.id || Date.now().toString());
-  const [url, setUrl] = useState<string[]>([]);
-  const [file, setFile] = useState<File[]>([]);
+  // const [url, setUrl] = useState<string[]>([]);
+  // const [file, setFile] = useState<File[]>([]);
+  // const [tempUrl, setTempUrl] = useState<string[]>([]); // 임시 url 저장소
+  const url = useRef<string[]>([]);
+  const file = useRef<File[]>([]);
+  const tempUrl = useRef<string[]>([]);
   const titleRef = useRef<HTMLInputElement>(null);
   const [mainText, setMainText] = useState(previewText?.htmlString);
   const [contents, setContents] = useState("");
 
   useEffect(() => {
     return () => {
-      console.log("unmount");
+      if (tempUrl.current.length > 0) {
+        // 임시 저장 중인 사진은 지운다
+        db.deleteImgTemp({
+          uid: targetIdRef.current,
+          imgs: url.current,
+          file: file.current,
+        });
+      }
     };
-  });
+  }, []);
 
   useEffect(() => {
     if (titleRef.current && previewText?.title) {
@@ -66,34 +77,42 @@ const ContentForm = memo(({ mode, updateText, previewText }: Iprops) => {
       writer: user.email,
       title: titleRef.current?.value,
       contents: mainText,
-      imgUrl: url,
-      imgFile: file,
+      imgUrl: url.current,
+      imgFile: file.current,
     };
 
     // img temp 삭제
-    if (url.length > 0) {
-      db.deleteImgTemp({ uid: contentObj.id, imgs: url, file: file });
+    if (tempUrl.current.length > 0) {
+      db.deleteImgTemp({
+        uid: contentObj.id,
+        imgs: url.current,
+        file: file.current,
+      });
 
       // img 저장
       let updatedText = mainText;
-
       db.addImgFile({
         uid: contentObj.id,
-        imgs: url,
-        file: file,
+        imgs: url.current,
+        file: file.current,
       }).then(async (res) => {
         if (res && res.length > 0) {
           for (let i = 0; i < res.length; i++) {
-            const file_url = await getDownloadURL(res[i].ref);
-            const regExp = /<img[^>]+src=[\"']?([^>\"']+)[\"']?[^>]*>/g;
-            updatedText.replace(regExp, (match, p1) => {
-              return match.replace(p1, file_url);
+            const newUrl = await getDownloadURL(res[i].ref);
+            const regExp = /src=[\"']?([^>\"']+)?[\&']/g;
+
+            updatedText = updatedText.replace(regExp, (match, p1) => {
+              let normalizedP1 = p1.replace(/&amp;/g, "&");
+              let normalizedTempUrl = tempUrl.current[i].replace(/&.+/g, "");
+
+              if (normalizedP1 == normalizedTempUrl)
+                return match.replace(p1, newUrl);
+              else return match;
             });
           }
-
-          setMainText(updatedText);
+          setMainText(updatedText); // 진짜 img url로 변경한 htmlstring으로 변경
+          tempUrl.current = []; // 모두 삭제했으므로 초기화
         }
-
         // content 이미지 링크 새로이 수정
         contentObj["contents"] = updatedText;
         if (mode === 1) {
@@ -168,8 +187,12 @@ const ContentForm = memo(({ mode, updateText, previewText }: Iprops) => {
           mainContents={mainText}
           setContents={setContents}
           targetIdRef={targetIdRef}
-          setUrl={setUrl}
-          setFile={setFile}
+          // setUrl={setUrl}
+          // setFile={setFile}
+          // setTempUrl={setTempUrl}
+          url={url}
+          file={file}
+          tempUrl={tempUrl}
         />
       </EditorWrapper>
       <div>

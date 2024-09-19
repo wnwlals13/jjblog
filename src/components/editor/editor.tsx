@@ -5,28 +5,35 @@ import Parser from "html-react-parser";
 import "react-quill/dist/quill.snow.css";
 import Database from "../../service/database";
 import { getDownloadURL } from "firebase/storage";
-import { resolve } from "path";
-import { blob } from "stream/consumers";
-import styled from "styled-components";
 
 interface EditorProps {
   mainContents?: string;
   setContents: React.Dispatch<React.SetStateAction<string>>;
   setId?: React.Dispatch<React.SetStateAction<string>>; // 게시글 id Set
-  setUrl?: React.Dispatch<React.SetStateAction<string[]>>; // 게시글 이미지 url
-  setFile?: React.Dispatch<React.SetStateAction<File[]>>;
+  // setUrl?: React.Dispatch<React.SetStateAction<string[]>>; // 게시글 이미지 url
+  // setFile?: React.Dispatch<React.SetStateAction<File[]>>;
+  // setTempUrl: React.Dispatch<React.SetStateAction<string[]>>;
+  url?: React.MutableRefObject<string[]>;
+  file?: React.MutableRefObject<File[]>;
+  tempUrl?: React.MutableRefObject<string[]>;
   targetIdRef?: React.MutableRefObject<string>; // 게시글 id
-  // setDfileList?: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 const Editor = memo((props: EditorProps) => {
-  const { mainContents, setContents, setUrl, setFile, targetIdRef } = props;
+  const {
+    mainContents,
+    setContents,
+    // setUrl,
+    // setFile,
+    // setTempUrl,
+    url,
+    file,
+    tempUrl,
+    targetIdRef,
+  } = props;
   const quillRef = useRef<ReactQuill>(null);
   const db = new Database();
   const [mainImg, setMainImg] = useState("");
-  const tempImgUploadedRef = useRef<string[]>([]); // 임시로 이미지 저장 후, 임시저장된 이미지 정보 모음
-  const tempFileUploadedRef = useRef<File[]>([]); // 임시로 이미지 저장 후, 임시저장된 이미지 정보 모음
-  const [tempURL, setTempURL] = useState<[string, string][]>([]);
 
   /* 수정하기인 경우, 세팅 */
   useEffect(() => {
@@ -36,6 +43,12 @@ const Editor = memo((props: EditorProps) => {
     const delta = quill?.clipboard.convert(text);
     if (delta) quill?.setContents(delta);
   }, []);
+
+  useEffect(() => {
+    return () => {
+      console.log("editor unmount?");
+    };
+  });
 
   // 이미지 리사이징
   const resizeFile = async (file: File) => {
@@ -74,8 +87,10 @@ const Editor = memo((props: EditorProps) => {
 
       if (!mainImg) {
         setMainImg(resizedImage.name);
-        if (setUrl) setUrl((prev) => [...prev, resizedImage.name]);
-        if (setFile) setFile((prev) => [...prev, resizedImage]);
+        // if (setUrl) setUrl((prev) => [...prev, resizedImage.name]);
+        // if (setFile) setFile((prev) => [...prev, resizedImage]);
+        if (url) url.current.push(resizedImage.name);
+        if (file) file.current.push(resizedImage);
       }
       if (!quillRef.current) return;
       const editor = quillRef.current.getEditor();
@@ -86,11 +101,16 @@ const Editor = memo((props: EditorProps) => {
         .addImgTemp({ contentId: targetIdRef.current, fileURL: resizedImage })
         .then(async (res) => {
           const file_url = await getDownloadURL(res.ref);
-
-          tempImgUploadedRef.current.push(resizedImage.name);
-          tempFileUploadedRef.current.push(resizedImage);
-          setTempURL((prev) => [...prev, [resizedImage.name, file_url]]);
-          if (range) editor.insertEmbed(range.index, "image", file_url);
+          tempUrl?.current.push(file_url);
+          // setTempUrl((prev) => [...prev, file_url]); // temp url을 origin url로 변경할 때, 비교할 수 있도록 변수 저장
+          if (range) {
+            editor.insertEmbed(range.index, "image", file_url);
+            // 이미지가 등록 된 후, 커서를 이미지 다음 줄로 이동시킨다.
+            setTimeout(() => {
+              editor.insertText(range.index + 1, "\n");
+              editor.setSelection(range.index + 2, range.index);
+            }, 1000);
+          }
         });
     });
   };
